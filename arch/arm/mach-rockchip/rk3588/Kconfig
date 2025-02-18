@@ -202,6 +202,15 @@ config TARGET_RK3588_NEU6
 	  IO board and Neu6a needs to mount on top of this IO board in order to
 	  create complete Edgeble Neural Compute Module 6B(Neu6B) IO platform.
 
+config TARGET_CM5_IO_RK3588
+	bool "Radxa CM5 IO RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  Radxa CM5 IO is a Rockchip RK3588S2 based SOM (System On Module) and
+	  IO board by Radxa.
+
+	  Only the 8GB variant is supported.
+
 config TARGET_ROCK5A_RK3588
 	bool "Radxa ROCK5A RK3588 board"
 	select BOARD_LATE_INIT
@@ -438,6 +447,7 @@ source "board/indiedroid/nova/Kconfig"
 source "board/khadas/khadas-edge2-rk3588s/Kconfig"
 source "board/pine64/quartzpro64-rk3588/Kconfig"
 source "board/turing/turing-rk1-rk3588/Kconfig"
+source "board/radxa/cm5-io-rk3588s/Kconfig"
 source "board/radxa/rock5a-rk3588s/Kconfig"
 source "board/radxa/rock5b-rk3588/Kconfig"
 source "board/radxa/rock-5-itx-rk3588/Kconfig"

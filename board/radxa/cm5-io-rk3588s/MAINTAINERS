@@ -1,0 +1,9 @@
+CM5-IO-RK3588
+M:	Eugen Hristev <eugen.hristev@collabora.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/radxa/cm5-io-rk3588s
+F:	include/configs/cm5-io-rk3588s.h
+F:	configs/cm5-io-rk3588s_defconfig
+F:	arch/arm/dts/rk3588s-cm5-io.dts
+F:	arch/arm/dts/rk3588s-cm5-io-u-boot.dtsi
