@@ -29,8 +29,6 @@
 		regulator-max-microvolt = <1100000>;
 		vin-supply = <&vcc5v0_sys>;
 	};
-
-
 };
 
 
@@ -113,6 +111,7 @@
 		pagesize = <16>;
 	};
 };
+
 &pinctrl {
 	leds {
 		io_led: io-led {
@@ -173,17 +172,17 @@
 
 		rk806_dvs1_null: dvs1-null-pins {
 			pins = "gpio_pwrctrl1";
-			function = "pin_fun3";
+			function = "pin_fun0";
 		};
 
 		rk806_dvs2_null: dvs2-null-pins {
 			pins = "gpio_pwrctrl2";
-			function = "pin_fun3";
+			function = "pin_fun0";
 		};
 
 		rk806_dvs3_null: dvs3-null-pins {
 			pins = "gpio_pwrctrl3";
-			function = "pin_fun3";
+			function = "pin_fun0";
 		};
 
 		regulators {

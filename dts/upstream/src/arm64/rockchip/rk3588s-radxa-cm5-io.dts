@@ -5,11 +5,12 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/pinctrl/rockchip.h>
+#include <dt-bindings/soc/rockchip,vop2.h>
 #include "dt-bindings/usb/pd.h"
 #include "rk3588s-radxa-cm5.dtsi"
 
 / {
-	model = "Radxa Compute Module 5(CM5) IO Board";
+	model = "Radxa Compute Module 5 (CM5) IO Board";
 	compatible = "radxa,cm5-io", "radxa,cm5", "rockchip,rk3588s";
 
 	aliases {
@@ -31,19 +32,31 @@
 			  "Headphones", "HPOR";
 
 		dais = <&i2s0_8ch_p0>;
+		hp-det-gpios = <&gpio1 RK_PC0 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&hp_detect>;
 	};
 
 	chosen {
 		stdout-path = "serial2:1500000n8";
 	};
 
-
-
 	fan: pwm-fan {
 		compatible = "pwm-fan";
 		cooling-levels = <0 64 128 192 255>;
 		pwms = <&pwm11 0 60000 0>;
 		#cooling-cells = <2>;
+	};
+
+	hdmi0-con {
+		compatible = "hdmi-connector";
+		type = "a";
+
+		port {
+			hdmi0_con_in: endpoint {
+				remote-endpoint = <&hdmi0_out_con>;
+			};
+		};
 	};
 
 	vcc12v_dcin: vcc12v-dcin-regulator {
@@ -55,6 +68,19 @@
 		regulator-max-microvolt = <12000000>;
 	};
 
+	vcc_3v3_s0_usbhub: vcc3v3-s0-usb-hub-regulator {
+		compatible = "vctrl-regulator";
+		regulator-name = "vcc_3v3_s0_usbhub";
+		regulator-boot-on;
+		ctrl-supply = <&vcc_1v8_s0>;
+		ctrl-voltage-range = <1700000 1900000>;
+		regulator-always-on;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		vin-supply = <&vcc_3v3_s3>;
+	};
+
+	// TODO rename
 	vcc5v0_host: vcc5v0-host-regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc5v0_host";
@@ -92,18 +118,7 @@
 		regulator-max-microvolt = <5000000>;
 		vin-supply = <&vcc12v_dcin>;
 	};
-
-
 };
-
-&combphy0_ps {
-	status = "okay";
-};
-
-&combphy2_psu {
-	status = "okay";
-};
-
 
 &i2c2 {
 	status = "okay";
@@ -126,10 +141,65 @@
 };
 
 
+&gpu {
+	mali-supply = <&vdd_gpu_s0>;
+	sram-supply = <&vdd_gpu_mem_s0>;
+	status = "okay";
+};
+
+
+&hdmi0 {
+	status = "okay";
+};
+
+
+&hdmi0_in {
+	hdmi0_in_vp0: endpoint {
+		remote-endpoint = <&vp0_out_hdmi0>;
+	};
+};
+
+&hdmi0_out {
+	hdmi0_out_con: endpoint {
+		remote-endpoint = <&hdmi0_con_in>;
+	};
+};
+
+&vop {
+	status = "okay";
+};
+
+&hdptxphy0 {
+	status = "okay";
+};
+
+&vop_mmu {
+	status = "okay";
+};
+&vp0 {
+	vp0_out_hdmi0: endpoint@ROCKCHIP_VOP2_EP_HDMI0 {
+		reg = <ROCKCHIP_VOP2_EP_HDMI0>;
+		remote-endpoint = <&hdmi0_in_vp0>;
+	};
+};
+
 &i2c6 {
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c6m3_xfer>;
+
+
+	hym8563: rtc@51 {
+		compatible = "haoyu,hym8563";
+		reg = <0x51>;
+		#clock-cells = <0>;
+		clock-output-names = "hym8563";
+		pinctrl-names = "default";
+		pinctrl-0 = <&hym8563_int>;
+		interrupt-parent = <&gpio0>;
+		interrupts = <RK_PB0 IRQ_TYPE_LEVEL_LOW>;
+		wakeup-source;
+	};
 
 	usbc0: fusb302@22 {
 		compatible = "fcs,fusb302";
@@ -220,9 +290,6 @@
 	};
 };
 
-
-
-
 &i2c8 {
 	status = "okay";
 	pinctrl-0 = <&i2c8m2_xfer>;
@@ -261,7 +328,6 @@
 	};
 };
 
-// TODO: What is this
 &gmac1 {
 	clock_in_out = "output";
 	phy-handle = <&rgmii_phy1>;
@@ -277,7 +343,6 @@
 	status = "okay";
 };
 
-// TODO phy actually lives on cm5
 &mdio1 {
 	rgmii_phy1: ethernet-phy@1 {
 		/* RTL8211F */
@@ -292,8 +357,6 @@
 };
 
 &pinctrl {
-
-
 	fusb302 {
 		vbus5v0_typec_en: vbus5v0-typec-en {
 			rockchip,pins = <0 RK_PD5 RK_FUNC_GPIO &pcfg_pull_none>;
@@ -301,6 +364,18 @@
 
 		usbc0_int: usbc0-int {
 			rockchip,pins = <0 RK_PC4 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	hym8563 {
+		hym8563_int: hym8563-int {
+			rockchip,pins = <0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	sound {
+		hp_detect: hp-detect {
+			rockchip,pins = <1 RK_PC0 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -383,6 +458,8 @@
 	status = "okay";
 };
 
+
+
 &u2phy0 {
 	status = "okay";
 };
@@ -391,23 +468,6 @@
 	status = "okay";
 };
 
-&u2phy2 {
-	status = "okay";
-};
-
-&u2phy2_host {
-	status = "okay";
-	phy-supply = <&vcc5v0_host>;
-};
-
-&u2phy3 {
-	status = "okay";
-};
-
-&u2phy3_host {
-	phy-supply = <&vcc5v0_host>;
-	status = "okay";
-};
 
 &uart2 {
 	pinctrl-0 = <&uart2m0_xfer>;
@@ -435,10 +495,40 @@
 	};
 };
 
+&combphy0_ps {
+	status = "okay";
+};
+
+&combphy2_psu {
+	status = "okay";
+};
+
+
+/* USB3 Type-A port */
+&usb_host1_ehci {
+	status = "okay";
+};
+
+&usb_host1_ohci {
+	status = "okay";
+};
+
 &usb_host2_xhci {
 	status = "okay";
 };
 
+&u2phy3 {
+	status = "okay";
+};
+
+&u2phy3_host {
+	//TODO FALSE
+	phy-supply = <&vcc5v0_host>;
+	status = "okay";
+};
+
+
+// connected to usb hub
 &usb_host0_ehci {
 	status = "okay";
 };
@@ -447,11 +537,13 @@
 	status = "okay";
 };
 
-&usb_host1_ehci {
+&u2phy2 {
 	status = "okay";
 };
 
-&usb_host1_ohci {
+&u2phy2_host {
+		//TODO FALSE
+	phy-supply = <&vcc5v0_host>;
 	status = "okay";
 };
 
