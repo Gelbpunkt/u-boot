@@ -165,7 +165,6 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	const char *phy;
 	u32 reg;
 	int ret;
-
 	ret = xhci_dwc3_reset_init(dev, plat);
 	if (ret)
 		return ret;
